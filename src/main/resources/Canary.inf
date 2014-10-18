@@ -1,0 +1,5 @@
+main-class=${main.class}
+name=${project.name}
+author=${author}
+version=${project.version}
+dependencies=${Canaryutil.name}
