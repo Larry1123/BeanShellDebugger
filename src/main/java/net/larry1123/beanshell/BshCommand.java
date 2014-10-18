@@ -33,44 +33,24 @@ package net.larry1123.beanshell;
 
 import bsh.Interpreter;
 import net.canarymod.Translator;
-import net.canarymod.api.Server;
-import net.canarymod.api.entity.living.humanoid.Player;
-import net.canarymod.api.world.blocks.CommandBlock;
 import net.canarymod.chat.MessageReceiver;
 import net.larry1123.util.api.plugin.commands.Command;
 import net.larry1123.util.api.plugin.commands.CommandData;
 import net.visualillusionsent.utils.LocaleHelper;
-import net.visualillusionsent.utils.PropertiesFile;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
 
-public class BshdCommand implements Command {
+public class BshCommand implements Command {
 
-    private final CommandData command = new CommandData(new String[] {"bshd"}, new String[] {"beanshelldebugger.shell"}, "TODO", "TODO");
-    private final LocaleHelper translator = Translator.getInstance();
-    private boolean loaded = false;
+    protected final CommandData command = new CommandData(new String[] {"bsh"}, new String[] {"bsh.shell"}, "TODO", "TODO");
+    protected final LocaleHelper translator = Translator.getInstance();
+    protected boolean loaded = false;
+    protected Interpreter bsh;
 
-    private BeanShellDebugger plugin;
-    private Interpreter bsh;
-
-
-    public BshdCommand(BeanShellDebugger plugin, Interpreter bsh) {
-        this.plugin = plugin;
+    public BshCommand(Interpreter bsh) {
         this.bsh = bsh;
-    }
-
-    public boolean isAllowedPlayer(MessageReceiver sender) {
-        if (sender instanceof Server || sender instanceof CommandBlock) {
-            return true;
-        }
-        if (sender instanceof Player) {
-            Player player = (Player) sender;
-            PropertiesFile config = plugin.getModuleConfig("AllowedPlayers");
-            return config.getBoolean(player.getUUIDString(), false) || player.isAdmin();
-        }
-        return false;
     }
 
     @Override
@@ -100,9 +80,6 @@ public class BshdCommand implements Command {
 
     @Override
     public void execute(MessageReceiver caller, String[] parameters) {
-        if (!isAllowedPlayer(caller)) {
-            caller.notice("You are not allowed to use this command.");
-        }
         // build the code string
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < parameters.length; i++) {
@@ -113,38 +90,6 @@ public class BshdCommand implements Command {
         }
         String statements = sb.toString();
         try {
-            //				Socket s = new Socket("localhost", 1338);
-            //				s.setSoTimeout(10);
-            //				BufferedReader in = new BufferedReader
-            //				  (new InputStreamReader(s.getInputStream()));
-            //				PrintWriter out = new PrintWriter
-            //				  (s.getOutputStream(), true /* autoFlush */);
-            //
-            //				out.println(sb.toString());
-            //
-            //				boolean more = true;
-            //				int ln = 0;
-            //				try {
-            //					while (more) {
-            //					    String line = in.readLine();
-            //					    if (line == null)
-            //					    	more = false;
-            //					    else if (ln == 0) {
-            //					    	ln++;
-            //						} else if (ln == 1) {
-            //					    	sender.sendMessage(line.substring(6));
-            //					    	ln++;
-            //					    } else {
-            //					    	sender.sendMessage(line);
-            //					    }
-            //					 }
-            //				} catch (SocketTimeoutException e) {
-            //
-            //				}
-            //
-            //				s.close();
-            //				in.close();
-            //				out.close();
             Object evalResult = bsh.eval(statements);
             caller.message("\u00a79Result: \u00a7f" + (evalResult == null ? "null" : evalResult));
         }
@@ -157,7 +102,7 @@ public class BshdCommand implements Command {
 
     @Override
     public List<String> tabComplete(MessageReceiver messageReceiver, String[] args) {
-        // TODO
+        // TODO maybe?
         return null;
     }
 }

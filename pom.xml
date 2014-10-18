@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>net.larry1123</groupId>
-    <artifactId>BeanShellDebugger</artifactId>
+    <artifactId>BeanShell</artifactId>
     <version>1.2.0-SNAPSHOT</version>
     <name>${project.artifactId}</name>
     <inceptionYear>2014</inceptionYear>
@@ -51,7 +51,8 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0.html</url>
         </license>
         <license>
-            <name>GNU GENERAL PUBLIC LICENSE</name>
+            <name>GNU GENERAL PUBLIC LICENSE: Version 3</name>
+            <url>http://www.gnu.org/licenses/gpl-3.0.html</url>
         </license>
     </licenses>
 
@@ -59,19 +60,6 @@
         <system>GitHub</system>
         <url>https://github.com/Larry1123/BeanShellDebugger/issues</url>
     </issueManagement>
-
-    <distributionManagement>
-        <repository>
-            <id>repo1123</id>
-            <name>Release Repository</name>
-            <url>http://repo.larry1123.net/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>repo1123</id>
-            <name>Snapshot Repository</name>
-            <url>http://repo.larry1123.net/content/repositories/snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 
     <repositories>
         <repository>
