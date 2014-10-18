@@ -3,6 +3,11 @@ BeanShellDebugger
 
 This is a Canary port of this plugin :)
 
+BeanShell 2.05b is included in this plugin.
+
+All changes are licenced Under Apache v2 License.
+All distributions are licenced under GNU GENERAL PUBLIC LICENSE: Version 3.
+
 This readme will be updated in due time.
 
 Old Readme
