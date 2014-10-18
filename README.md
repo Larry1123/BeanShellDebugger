@@ -1,3 +1,13 @@
+BeanShellDebugger
+==========
+
+This is a Canary port of this plugin :)
+
+This readme will be updated in due time.
+
+Old Readme
+==========
+
 This fork removes the BeanShell servers and requires the permission beanshelldebugger.shell in order to use the bshd command.
 Additionally, you shouldn't need to put the BeanShell jar in your root bukkit directory.
 Below is the untouched README from the original repository; some parts do not apply to this fork.
