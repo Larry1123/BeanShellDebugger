@@ -40,7 +40,6 @@ import net.larry1123.util.api.plugin.UtilPlugin;
 import net.larry1123.util.api.plugin.commands.Command;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.logging.Logger;
 
 public class BeanShellDebugger extends UtilPlugin {
@@ -48,7 +47,7 @@ public class BeanShellDebugger extends UtilPlugin {
     public static java.io.PrintStream t = System.out;
     public Interpreter bsh;
     public Logger log;
-    public File dataFolder = new File("beanShellDebugger/");
+    public File dataFolder = new File("pluginData/beanShellDebugger/");
 
     protected BshdCommand bshdCommand;
 
@@ -60,16 +59,6 @@ public class BeanShellDebugger extends UtilPlugin {
         // Initialize the data folder
         if (!dataFolder.exists()) {
             dataFolder.mkdir();
-        }
-        File allowedPlayersFile = new File(dataFolder, "allowedPlayers.txt");
-        if (!allowedPlayersFile.exists()) {
-            log.info("[bshd] No allowedPlayers.txt found; creating one");
-            try {
-                allowedPlayersFile.createNewFile();
-            }
-            catch (IOException exc) {
-                exc.printStackTrace();
-            }
         }
 
         bsh = new Interpreter();
