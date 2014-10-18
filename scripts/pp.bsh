@@ -1,11 +1,10 @@
 //Prints a list of all loaded plugins
 
-import org.bukkit.plugin.*;
+import net.canarymod.plugin.Plugin;
 
 public void pp() {
     for(Plugin p : pluginManager.getPlugins()) {
-        String[] cn = p.getClass().getName().split("\\.");
-        print(cn[cn.length-1] + " - " +
+        print(p.getName() + " - " +
             (p.isEnabled() ? "enabled" : "disabled"));
     }
 }

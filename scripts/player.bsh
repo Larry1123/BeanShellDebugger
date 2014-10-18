@@ -1,5 +1,5 @@
 //Gets a player by name
-import org.bukkit.entity.Player;
+import net.canarymod.api.entity.living.humanoid.Player;
 
 public Player player(String name) {
     return server.getPlayer(name);
