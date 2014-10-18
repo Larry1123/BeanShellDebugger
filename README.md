@@ -1,7 +1,13 @@
 BeanShellDebugger
 ==========
 
-This is a Canary port of this plugin :)
+[![Build Status](https://ci.larry1123.net/job/Canary-BeanShellDebugger/badge/icon)](https://ci.larry1123.net/job/Canary-BeanShellDebugger/)  
+[Latest Build](https://ci.larry1123.net/job/Canary-BeanShellDebugger/lastBuild/)  
+[Latest Successful Build](https://ci.larry1123.net/job/Canary-BeanShellDebugger/lastSuccessfulBuild/)
+
+This is a Canary port! :)
+
+This plugin can be used to debug things on the fly.
 
 BeanShell 2.05b is included in this plugin.
 
