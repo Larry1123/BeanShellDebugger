@@ -35,10 +35,8 @@ import com.google.common.io.Files;
 import net.canarymod.Canary;
 import net.canarymod.commandsys.CommandDependencyException;
 import net.canarymod.plugin.Plugin;
-import net.larry1123.util.CanaryUtil;
 import net.larry1123.util.api.plugin.UtilPlugin;
 import net.larry1123.util.api.plugin.commands.Command;
-import org.slf4j.Logger;
 import org.slf4j.MarkerFactory;
 
 import java.io.File;
@@ -49,16 +47,15 @@ import java.nio.file.Path;
 public class BeanShell extends UtilPlugin {
 
     public Interpreter bsh;
-    public Logger log;
 
     protected BshCommand bshCommand;
     protected BeanShellConfig config;
+    protected BeanShellListener listener;
 
     @Override
     public boolean enable() {
         config = new BeanShellConfig(this);
-        log = getLogger();
-        log.info("Starting BeanShell");
+        getLogger().info("Starting BeanShell");
         PrintStream out = new PrintStream(new LoggerOutputStream(this, false), true);
         PrintStream err = new PrintStream(new LoggerOutputStream(this, true), true);
         bsh = new Interpreter(new StringReader(""), out, err, false, null);
@@ -87,9 +84,9 @@ public class BeanShell extends UtilPlugin {
             bsh.set("classLoader", getClass().getClassLoader());
 
             // Create an alias for each plugin name using its class name
-            for (Plugin p : Canary.manager().getPlugins()) {
-                log.info("Regisering object " + p.getName());
-                bsh.set(p.getName(), p);
+            for (Plugin plugin : Canary.manager().getPlugins()) {
+                getLogger().info("Regisering object " + plugin.getName());
+                bsh.set(plugin.getName(), plugin);
             }
             // Source any .bsh files in the plugin directory
             Path sourcesPath = getPluginDataFolder().toPath().resolve("scripts");
@@ -98,33 +95,38 @@ public class BeanShell extends UtilPlugin {
                 Path path = file.toPath();
                 String filename = path.getFileName().toString();
                 if (Files.getFileExtension(filename).equals(".bsh")) {
-                    log.info("Sourcing file " + Files.getNameWithoutExtension(filename));
+                    getLogger().info("Sourcing file " + Files.getNameWithoutExtension(filename));
                     bsh.source(path.toString());
                 }
                 else {
-                    log.info("*** skipping " + path.toAbsolutePath().toString());
+                    getLogger().info("*** skipping " + path.toAbsolutePath().toString());
                 }
             }
             bsh.eval("setAccessibility(true)"); // turn off access restrictions
             if (config.getServerPort() != 0) {
-                bsh.eval("server(" + config.getServerPort() +  ")");
-                log.info("BeanShell web console at http://localhost:" + config.getServerPort());
-                log.info("BeanShell telnet console at localhost:" + (config.getServerPort() + 1));
+                bsh.eval("server(" + config.getServerPort() + ")");
+                getLogger().info("BeanShell web console at http://localhost:" + config.getServerPort());
+                getLogger().info("BeanShell telnet console at localhost:" + (config.getServerPort() + 1));
             }
             // Register the bsh command
             bshCommand = new BshCommand(bsh);
             if (!regCommand(bshCommand)) {
                 String message = "Unable to register Command!";
-                log.error(message);
+                getLogger().error(message);
                 enableFailed(message);
                 return false;
             }
+
+            // Register Plugin Enable/Disable Listener
+            listener = new BeanShellListener(this, bsh);
+            registerListener(listener);
         }
         catch (Exception e) {
-            log.error("Error in BeanShell. ", e);
+            getLogger().error("Error in BeanShell. ", e);
             enableFailed(e.toString());
             return false;
         }
+        enabled();
         return true;
     }
 
@@ -135,8 +137,7 @@ public class BeanShell extends UtilPlugin {
 
     protected boolean regCommand(Command command) {
         try {
-            CanaryUtil.commands().registerCommand(command, this);
-            command.setLoaded(true);
+            registerCommand(command);
             return true;
         }
         catch (CommandDependencyException e) {
