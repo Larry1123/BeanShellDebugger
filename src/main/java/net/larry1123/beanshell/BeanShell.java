@@ -31,40 +31,37 @@
 package net.larry1123.beanshell;
 
 import bsh.Interpreter;
+import com.google.common.io.Files;
 import net.canarymod.Canary;
 import net.canarymod.commandsys.CommandDependencyException;
 import net.canarymod.plugin.Plugin;
 import net.larry1123.util.CanaryUtil;
 import net.larry1123.util.api.plugin.UtilPlugin;
 import net.larry1123.util.api.plugin.commands.Command;
+import org.slf4j.Logger;
+import org.slf4j.MarkerFactory;
 
 import java.io.File;
-import java.util.logging.Logger;
+import java.io.PrintStream;
+import java.io.StringReader;
+import java.nio.file.Path;
 
 public class BeanShell extends UtilPlugin {
 
     public Interpreter bsh;
     public Logger log;
-    public File dataFolder = new File("pluginData/beanShell/");
 
     protected BshCommand bshCommand;
     protected BeanShellConfig config;
 
     @Override
     public boolean enable() {
-        config = new BeanShellConfig(getConfig());
+        config = new BeanShellConfig(this);
         log = getLogger();
         log.info("Starting BeanShell");
-
-        // Initialize the data folder
-        if (!dataFolder.getParentFile().exists()) {
-            dataFolder.getParentFile().mkdir();
-        }
-        if (!dataFolder.exists()) {
-            dataFolder.mkdir();
-        }
-
-        bsh = new Interpreter();
+        PrintStream out = new PrintStream(new LoggerOutputStream(this, false), true);
+        PrintStream err = new PrintStream(new LoggerOutputStream(this, true), true);
+        bsh = new Interpreter(new StringReader(""), out, err, false, null);
         try {
             // Set up debug environment with globals
             bsh.set("server", Canary.getServer());
@@ -91,44 +88,40 @@ public class BeanShell extends UtilPlugin {
 
             // Create an alias for each plugin name using its class name
             for (Plugin p : Canary.manager().getPlugins()) {
-                String[] cn = p.getClass().getName().split("\\.");
-                log.info("Regisering object " + cn[cn.length - 1]);
-                bsh.set(cn[cn.length - 1], p);
+                log.info("Regisering object " + p.getName());
+                bsh.set(p.getName(), p);
             }
-
             // Source any .bsh files in the plugin directory
-            if (dataFolder.listFiles() != null) {
-                for (File file : dataFolder.listFiles()) {
-                    String fileName = file.getName();
-                    if (fileName.endsWith(".bsh")) {
-                        log.info("Sourcing file " + fileName);
-                        bsh.source(file.getPath());
-                    }
-                    else {
-                        log.info("*** skipping " + file.getAbsolutePath());
-                    }
+            Path sourcesPath = getPluginDataFolder().toPath().resolve("scripts");
+            Files.createParentDirs(sourcesPath.toFile());
+            for (File file : Files.fileTreeTraverser().children(sourcesPath.toFile())) {
+                Path path = file.toPath();
+                String filename = path.getFileName().toString();
+                if (Files.getFileExtension(filename).equals(".bsh")) {
+                    log.info("Sourcing file " + Files.getNameWithoutExtension(filename));
+                    bsh.source(path.toString());
+                }
+                else {
+                    log.info("*** skipping " + path.toAbsolutePath().toString());
                 }
             }
-
             bsh.eval("setAccessibility(true)"); // turn off access restrictions
-
             if (config.getServerPort() != 0) {
                 bsh.eval("server(" + config.getServerPort() +  ")");
                 log.info("BeanShell web console at http://localhost:" + config.getServerPort());
                 log.info("BeanShell telnet console at localhost:" + (config.getServerPort() + 1));
             }
-
             // Register the bsh command
             bshCommand = new BshCommand(bsh);
             if (!regCommand(bshCommand)) {
                 String message = "Unable to register Command!";
-                log.severe(message);
+                log.error(message);
                 enableFailed(message);
+                return false;
             }
-
         }
         catch (Exception e) {
-            log.severe("Error in BeanShell. " + e.toString());
+            log.error("Error in BeanShell. ", e);
             enableFailed(e.toString());
             return false;
         }
@@ -147,7 +140,7 @@ public class BeanShell extends UtilPlugin {
             return true;
         }
         catch (CommandDependencyException e) {
-            getLogger().logCustom("Commands", "Failed to add command: " + command.getCommandData().getAliases()[0], e);
+            getLogger().error(MarkerFactory.getMarker("Commands"), "Failed to add command: " + command.getCommandData().getAliases()[0], e);
             command.setLoaded(false);
             return false;
         }

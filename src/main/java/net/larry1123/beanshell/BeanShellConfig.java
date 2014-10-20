@@ -15,6 +15,7 @@
  */
 package net.larry1123.beanshell;
 
+import net.canarymod.plugin.Plugin;
 import net.larry1123.elec.util.config.ConfigBase;
 import net.larry1123.elec.util.config.ConfigField;
 import net.larry1123.elec.util.config.ConfigFile;
@@ -28,19 +29,20 @@ import net.visualillusionsent.utils.PropertiesFile;
 public class BeanShellConfig implements ConfigBase {
 
     protected final ConfigFile configManager;
-    protected PropertiesFile propertiesFile;
+    protected final Plugin plugin;
 
     @ConfigField(name = "Server-Port", comments = {"What port to host the web front of BeanShell on.", "This will also open a telnet port on the next port number.", "Set this to 0 to disable it."})
     protected int serverPort = 0;
 
-    public BeanShellConfig(PropertiesFile propertiesFile) {
-        this.propertiesFile = propertiesFile;
+    public BeanShellConfig(Plugin plugin) {
+        this.plugin = plugin;
         configManager = new ConfigFile(this);
+        configManager.save();
     }
 
     @Override
     public PropertiesFile getPropertiesFile() {
-        return propertiesFile;
+        return plugin.getConfig();
     }
 
     public int getServerPort() {

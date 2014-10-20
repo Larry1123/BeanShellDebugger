@@ -105,4 +105,5 @@ public class BshCommand implements Command {
         // TODO maybe?
         return null;
     }
+
 }

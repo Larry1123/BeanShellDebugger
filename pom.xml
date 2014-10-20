@@ -15,7 +15,7 @@
         <author>Larry1123, Ryan Michela, orthoplex64</author>
         <Canaryutil.groupID>net.larry1123</Canaryutil.groupID>
         <Canaryutil.name>CanaryUtil</Canaryutil.name>
-        <Canaryutil.version>0.3.3</Canaryutil.version>
+        <Canaryutil.version>0.3.4-SNAPSHOT</Canaryutil.version>
     </properties>
 
     <organization>
