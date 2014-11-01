@@ -72,7 +72,7 @@ public class BeanShell extends UtilPlugin {
             getBsh().set("reserveList", Canary.reservelist());
             getBsh().set("hooks", Canary.hooks());
             getBsh().set("db", Canary.db());
-            getBsh().set("pluginManager", Canary.manager());
+            getBsh().set("pluginManager", Canary.pluginManager());
             getBsh().set("permissions", Canary.permissionManager());
             getBsh().set("help", Canary.help());
             getBsh().set("factory", Canary.factory());
@@ -83,7 +83,7 @@ public class BeanShell extends UtilPlugin {
             getBsh().set("classLoader", getClass().getClassLoader());
 
             // Create an alias for each plugin name using its class name
-            for (Plugin plugin : Canary.manager().getPlugins()) {
+            for (Plugin plugin : Canary.pluginManager().getPlugins()) {
                 getLogger().info("Regisering object " + plugin.getName());
                 getBsh().set(plugin.getName(), plugin);
             }
