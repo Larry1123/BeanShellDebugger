@@ -15,11 +15,10 @@
  */
 package net.larry1123.beanshell;
 
-import net.canarymod.plugin.Plugin;
 import net.larry1123.elec.util.config.ConfigBase;
 import net.larry1123.elec.util.config.ConfigField;
 import net.larry1123.elec.util.config.ConfigFile;
-import net.larry1123.util.task.FileSpliterUpdater;
+import net.larry1123.util.api.plugin.UtilPlugin;
 import net.visualillusionsent.utils.PropertiesFile;
 
 /**
@@ -28,21 +27,21 @@ import net.visualillusionsent.utils.PropertiesFile;
  */
 public class BeanShellConfig implements ConfigBase {
 
-    protected final ConfigFile configManager;
-    protected final Plugin plugin;
+    private final ConfigFile configManager;
+    private final UtilPlugin plugin;
 
     @ConfigField(name = "Server-Port", comments = {"What port to host the web front of BeanShell on.", "This will also open a telnet port on the next port number.", "Set this to 0 to disable it."})
     protected int serverPort = 0;
 
-    public BeanShellConfig(Plugin plugin) {
+    public BeanShellConfig(UtilPlugin plugin) {
         this.plugin = plugin;
         configManager = new ConfigFile(this);
-        configManager.save();
+        getConfigManager().save();
     }
 
     @Override
     public PropertiesFile getPropertiesFile() {
-        return plugin.getConfig();
+        return getPlugin().getConfig();
     }
 
     public int getServerPort() {
@@ -53,8 +52,15 @@ public class BeanShellConfig implements ConfigBase {
      * Will update everything with any changes in Config file
      */
     void reload() {
-        configManager.reload();
-        FileSpliterUpdater.reloadUpdater();
+        getConfigManager().reload();
+    }
+
+    public ConfigFile getConfigManager() {
+        return configManager;
+    }
+
+    public UtilPlugin getPlugin() {
+        return plugin;
     }
 
 }

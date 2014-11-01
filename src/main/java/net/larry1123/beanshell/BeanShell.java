@@ -46,47 +46,46 @@ import java.nio.file.Path;
 
 public class BeanShell extends UtilPlugin {
 
-    public Interpreter bsh;
-
-    protected BshCommand bshCommand;
-    protected BeanShellConfig config;
-    protected BeanShellListener listener;
+    private Interpreter bsh;
+    private BshCommand bshCommand;
+    private BeanShellConfig config;
+    private BeanShellListener listener;
 
     @Override
     public boolean enable() {
-        config = new BeanShellConfig(this);
+        setBeanShellConfig(new BeanShellConfig(this));
         getLogger().info("Starting BeanShell");
         PrintStream out = new PrintStream(new LoggerOutputStream(this, false), true);
         PrintStream err = new PrintStream(new LoggerOutputStream(this, true), true);
-        bsh = new Interpreter(new StringReader(""), out, err, false, null);
+        setBsh(new Interpreter(new StringReader(""), out, err, false, null));
         try {
             // Set up debug environment with globals
-            bsh.set("server", Canary.getServer());
-            bsh.set("bans", Canary.bans());
-            bsh.set("channels", Canary.channels());
-            bsh.set("commands", Canary.commands());
-            bsh.set("userAndGroup", Canary.usersAndGroups());
-            bsh.set("warps", Canary.warps());
-            bsh.set("kits", Canary.kits());
-            bsh.set("whiteList", Canary.whitelist());
-            bsh.set("ops", Canary.ops());
-            bsh.set("reserveList", Canary.reservelist());
-            bsh.set("hooks", Canary.hooks());
-            bsh.set("db", Canary.db());
-            bsh.set("pluginManager", Canary.manager());
-            bsh.set("permissions", Canary.permissionManager());
-            bsh.set("help", Canary.help());
-            bsh.set("factory", Canary.factory());
-            bsh.set("scoreboards", Canary.scoreboards());
-            bsh.set("motd", Canary.motd());
-            bsh.set("playerSelector", Canary.playerSelector());
-            bsh.set("logger", getLogger());
-            bsh.set("classLoader", getClass().getClassLoader());
+            getBsh().set("server", Canary.getServer());
+            getBsh().set("bans", Canary.bans());
+            getBsh().set("channels", Canary.channels());
+            getBsh().set("commands", Canary.commands());
+            getBsh().set("userAndGroup", Canary.usersAndGroups());
+            getBsh().set("warps", Canary.warps());
+            getBsh().set("kits", Canary.kits());
+            getBsh().set("whiteList", Canary.whitelist());
+            getBsh().set("ops", Canary.ops());
+            getBsh().set("reserveList", Canary.reservelist());
+            getBsh().set("hooks", Canary.hooks());
+            getBsh().set("db", Canary.db());
+            getBsh().set("pluginManager", Canary.manager());
+            getBsh().set("permissions", Canary.permissionManager());
+            getBsh().set("help", Canary.help());
+            getBsh().set("factory", Canary.factory());
+            getBsh().set("scoreboards", Canary.scoreboards());
+            getBsh().set("motd", Canary.motd());
+            getBsh().set("playerSelector", Canary.playerSelector());
+            getBsh().set("logger", getLogger());
+            getBsh().set("classLoader", getClass().getClassLoader());
 
             // Create an alias for each plugin name using its class name
             for (Plugin plugin : Canary.manager().getPlugins()) {
                 getLogger().info("Regisering object " + plugin.getName());
-                bsh.set(plugin.getName(), plugin);
+                getBsh().set(plugin.getName(), plugin);
             }
             // Source any .bsh files in the plugin directory
             Path sourcesPath = getPluginDataFolder().toPath().resolve("scripts");
@@ -96,21 +95,21 @@ public class BeanShell extends UtilPlugin {
                 String filename = path.getFileName().toString();
                 if (Files.getFileExtension(filename).equals(".bsh")) {
                     getLogger().info("Sourcing file " + Files.getNameWithoutExtension(filename));
-                    bsh.source(path.toString());
+                    getBsh().source(path.toString());
                 }
                 else {
                     getLogger().info("*** skipping " + path.toAbsolutePath().toString());
                 }
             }
-            bsh.eval("setAccessibility(true)"); // turn off access restrictions
-            if (config.getServerPort() != 0) {
-                bsh.eval("server(" + config.getServerPort() + ")");
-                getLogger().info("BeanShell web console at http://localhost:" + config.getServerPort());
-                getLogger().info("BeanShell telnet console at localhost:" + (config.getServerPort() + 1));
+            getBsh().eval("setAccessibility(true)"); // turn off access restrictions
+            if (getBeanShellConfig().getServerPort() != 0) {
+                getBsh().eval("server(" + getBeanShellConfig().getServerPort() + ")");
+                getLogger().info("BeanShell web console at http://localhost:" + getBeanShellConfig().getServerPort());
+                getLogger().info("BeanShell telnet console at localhost:" + (getBeanShellConfig().getServerPort() + 1));
             }
             // Register the bsh command
-            bshCommand = new BshCommand(bsh);
-            if (!regCommand(bshCommand)) {
+            setBshCommand(new BshCommand(getBsh()));
+            if (!regCommand(getBshCommand())) {
                 String message = "Unable to register Command!";
                 getLogger().error(message);
                 enableFailed(message);
@@ -118,8 +117,8 @@ public class BeanShell extends UtilPlugin {
             }
 
             // Register Plugin Enable/Disable Listener
-            listener = new BeanShellListener(this, bsh);
-            registerListener(listener);
+            setListener(new BeanShellListener(this, getBsh()));
+            registerListener(getListener());
         }
         catch (Exception e) {
             getLogger().error("Error in BeanShell. ", e);
@@ -132,7 +131,8 @@ public class BeanShell extends UtilPlugin {
 
     @Override
     public void disable() {
-        // TODO likely something to do here
+        Canary.commands().unregisterCommands(this);
+        Canary.hooks().unregisterPluginListeners(this);
     }
 
     protected boolean regCommand(Command command) {
@@ -145,6 +145,38 @@ public class BeanShell extends UtilPlugin {
             command.setLoaded(false);
             return false;
         }
+    }
+
+    public Interpreter getBsh() {
+        return bsh;
+    }
+
+    public void setBsh(Interpreter bsh) {
+        this.bsh = bsh;
+    }
+
+    public BshCommand getBshCommand() {
+        return bshCommand;
+    }
+
+    public void setBshCommand(BshCommand bshCommand) {
+        this.bshCommand = bshCommand;
+    }
+
+    public BeanShellConfig getBeanShellConfig() {
+        return config;
+    }
+
+    public void setBeanShellConfig(BeanShellConfig config) {
+        this.config = config;
+    }
+
+    public BeanShellListener getListener() {
+        return listener;
+    }
+
+    public void setListener(BeanShellListener listener) {
+        this.listener = listener;
     }
 
 }

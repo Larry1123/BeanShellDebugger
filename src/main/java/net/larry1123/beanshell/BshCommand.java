@@ -28,7 +28,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package net.larry1123.beanshell;
 
 import bsh.Interpreter;
@@ -41,6 +40,8 @@ import net.visualillusionsent.utils.LocaleHelper;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
+
+import static net.canarymod.chat.Colors.*;
 
 public class BshCommand implements Command {
 
@@ -91,12 +92,12 @@ public class BshCommand implements Command {
         String statements = sb.toString();
         try {
             Object evalResult = bsh.eval(statements);
-            caller.message("\u00a79Result: \u00a7f" + (evalResult == null ? "null" : evalResult));
+            caller.message(BLUE + "Result: " + LIGHT_GRAY + (evalResult == null ? "null" : evalResult));
         }
         catch (Throwable thr) {
             StringWriter writer = new StringWriter();
             thr.printStackTrace(new PrintWriter(writer, true));
-            caller.notice("\u00a7cError: \u00a7f" + writer.toString());
+            caller.notice(LIGHT_RED + "Error: " + LIGHT_GRAY + writer.toString());
         }
     }
 

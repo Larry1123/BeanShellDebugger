@@ -2,6 +2,7 @@ package net.larry1123.beanshell;
 
 import bsh.EvalError;
 import bsh.Interpreter;
+import net.canarymod.hook.HookHandler;
 import net.canarymod.hook.system.PluginDisableHook;
 import net.canarymod.hook.system.PluginEnableHook;
 import net.canarymod.plugin.Plugin;
@@ -15,38 +16,48 @@ import net.larry1123.util.api.plugin.UtilPlugin;
  */
 public class BeanShellListener implements PluginListener {
 
-    protected final UtilPlugin plugin;
-    protected final Interpreter bsh;
+    private final UtilPlugin plugin;
+    private final Interpreter bsh;
 
     public BeanShellListener(UtilPlugin plugin, Interpreter bsh) {
         this.plugin = plugin;
         this.bsh = bsh;
     }
 
+    @HookHandler
     public void pluginEnable(PluginEnableHook hook) {
         try {
             Plugin plugin = hook.getPlugin();
-            getLogger().info("Regisering object " + plugin.getName());
-            bsh.set(plugin.getName(), plugin);
+            getLogger().info("Registering object " + plugin.getName() + ". Plugin has been enabled.");
+            getBsh().set(plugin.getName(), plugin);
         }
         catch (EvalError evalError) {
             getLogger().error("Error adding plugin", evalError);
         }
     }
 
+    @HookHandler
     public void pluginDisable(PluginDisableHook hook) {
         try {
             Plugin plugin = hook.getPlugin();
-            getLogger().info("Unregisering object " + plugin.getName() + ", Plugin is now disabled.");
-            bsh.unset(plugin.getName());
+            getBsh().unset(plugin.getName());
+            getLogger().info("Unregistered object " + plugin.getName() + ". Plugin was disabled.");
         }
         catch (EvalError evalError) {
-            getLogger().error("Error removeing plugin", evalError);
+            getLogger().error("Error removing plugin", evalError);
         }
     }
 
     public EELogger getLogger() {
-        return plugin.getLogger();
+        return getPlugin().getLogger();
+    }
+
+    public UtilPlugin getPlugin() {
+        return plugin;
+    }
+
+    public Interpreter getBsh() {
+        return bsh;
     }
 
 }
