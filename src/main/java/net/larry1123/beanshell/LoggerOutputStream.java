@@ -20,7 +20,7 @@ public class LoggerOutputStream extends AbstractLoggerOutputStream {
     }
 
     @Override
-    protected void log(String message) {
+    public void log(String message) {
         if (isError()) {
             getLogger().error(message);
         }
