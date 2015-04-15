@@ -45,13 +45,14 @@ import static net.canarymod.chat.Colors.*;
 
 public class BshCommand implements Command {
 
-    protected final CommandData command = new CommandData(new String[] {"bsh"}, new String[] {"bsh.shell"}, "TODO", "TODO");
+    protected final CommandData command = new CommandData(new String[] {"bsh"}, new String[] {"bsh.shell"}, "TODO", "TODO", 2);
     protected final LocaleHelper translator = Translator.getInstance();
     protected boolean loaded = false;
     protected Interpreter bsh;
 
     public BshCommand(Interpreter bsh) {
         this.bsh = bsh;
+        command.setMin(1);
     }
 
     @Override
